@@ -8,8 +8,29 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-	res.send('Hello World');
+app.get('/', async (req, res) => {
+	try {
+		const notes = await Note.find();
+		res.json(notes);
+	} catch (error) {
+		console.error('Error fetching notes:', error);
+		res.status(500).send('Internal Server Error');
+	}
+});
+
+app.get('/:noteId', async (req, res) => {
+	try {
+		const note = await Note.findById(req.params.noteId);
+
+		if (!note) {
+			return res.status(404).send('Note not found');
+		}
+
+		res.json(note);
+	} catch (error) {
+		console.error('Error fetching note by ID:', error);
+		res.status(500).send('Internal Server Error');
+	}
 });
 
 interface IncomingBody {
@@ -47,6 +68,18 @@ app.patch('/update/:noteId', async (req, res) => {
 	await note.save();
 
 	res.send('Note updated');
+});
+
+app.delete('/delete/:noteId', async (req, res) => {
+	const noteId = req.params.noteId;
+
+	const note = await Note.findByIdAndDelete(noteId);
+
+	if (!note) {
+		return res.status(404).send('Note not found');
+	}
+
+	res.send('Note deleted');
 });
 
 const PORT = process.env.PORT || 3000;
