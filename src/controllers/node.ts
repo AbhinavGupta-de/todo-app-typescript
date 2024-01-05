@@ -9,7 +9,15 @@ interface IncomingBody {
 export const getAllNotes: RequestHandler = async (req, res) => {
 	try {
 		const notes = await Note.find();
-		res.json(notes);
+		res.json({
+			notes: notes.map((note) => {
+				return {
+					id: note._id,
+					title: note.title,
+					description: note.description,
+				};
+			}),
+		});
 	} catch (error) {
 		console.error('Error fetching notes:', error);
 		res.status(500).send('Internal Server Error');
