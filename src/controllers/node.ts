@@ -68,7 +68,13 @@ export const updatePost: RequestHandler = async (req, res) => {
 
 	await note.save();
 
-	res.send('Note updated');
+	res.send({
+		note: {
+			id: note._id,
+			title: note.title,
+			description: note.description,
+		},
+	});
 };
 
 export const deletePost: RequestHandler = async (req, res) => {
